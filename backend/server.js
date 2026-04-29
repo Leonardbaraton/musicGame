@@ -71,9 +71,26 @@ app.get('/api/rooms/:code/players', async (req, res) => {
     
     if (!room) return res.status(404).json({ error: 'Room introuvable' });
 
-    res.json(room.players);
+    res.json({
+      players: room.players,
+      isStarted: room.isStarted
+    });
   } catch (error) {
     res.status(500).json({ error: 'Erreur lors de la récupération des joueurs' });
+  }
+});
+
+app.post('/api/rooms/:code/start', async (req, res) => {
+  const { code } = req.params;
+
+  try {
+    const room = await prisma.room.update({
+      where: { code },
+      data: { isStarted: true }
+    });
+    res.json(room);
+  } catch (error) {
+    res.status(500).json({ error: 'Erreur au lancement de la partie' });
   }
 });
 

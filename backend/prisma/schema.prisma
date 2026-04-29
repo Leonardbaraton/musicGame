@@ -11,6 +11,7 @@ model Room {
   id        String   @id @default(uuid())
   code      String   @unique
   createdAt DateTime @default(now())
+  isStarted Boolean  @default(false)
   players   Player[]
 }
 
