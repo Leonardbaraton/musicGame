@@ -8,13 +8,14 @@ const colorMap = {
 
 function GuessCell({ value, color, dir }) {
   const bg = colorMap[color] || 'bg-[#282828]';
-  const dirLabel = dir === '>' ? 'plus grand' : dir === '<' ? 'plus petit' : null;
+  const dirLabel = dir === '+' ? '↑' : dir === '-' ? '↓' : null;
+
   return (
     <td className={`px-3 py-3 text-center text-sm font-medium text-white border-b border-[#3E3E3E] ${bg} transition-colors`}>
       {value}
       {dirLabel && (
-        <span className="ml-1 text-xs opacity-80" aria-label={dirLabel}>
-          {dir === '>' ? '↑' : '↓'}
+        <span className="ml-1 text-base font-bold opacity-90" aria-label={dirLabel === '↑' ? 'plus grand' : 'plus petit'}>
+          {dirLabel}
         </span>
       )}
     </td>
@@ -197,8 +198,8 @@ function Gameplay({ room, player, onLeave }) {
             <div className="w-3 h-3 rounded bg-[#E22134]" />
             <span>Incorrect</span>
           </div>
-          <div className="flex items-center gap-2 ml-2">
-            <span>↑ = plus grand · ↓ = plus petit</span>
+          <div className="flex items-center gap-2 ml-2 text-sm font-medium">
+            <span>↑ = chercher plus haut · ↓ = chercher plus bas</span>
           </div>
         </div>
       </div>

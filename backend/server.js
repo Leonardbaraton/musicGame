@@ -85,16 +85,42 @@ app.post('/api/rooms/:code/start', async (req, res) => {
 
   try {
     const famousBands = [
-      'Queen', 'The Beatles', 'Daft Punk', 'Pink Floyd', 
-      'Nirvana', 'Coldplay', 'AC/DC', 'The Rolling Stones',
-      'Metallica', 'Led Zeppelin', 'U2', 'Red Hot Chili Peppers'
-    ];
+  'Michael Jackson', 'The Beatles', 'Elvis Presley', 'Madonna', 'Queen',
+  'Bob Marley', 'Prince', 'David Bowie', 'Whitney Houston', 'ABBA',
+
+  'The Rolling Stones', 'Led Zeppelin', 'Pink Floyd', 'Nirvana', 'U2',
+  'AC/DC', 'The Doors', "Guns N' Roses", 'Metallica', 'The Who',
+
+  'Elton John', 'Stevie Wonder', 'George Michael', 'Phil Collins', 'Tina Turner',
+  'Celine Dion', 'Mariah Carey', 'Aretha Franklin', 'Janet Jackson', 'Lionel Richie',
+
+  'James Brown', 'Marvin Gaye', 'Earth, Wind & Fire', 'Bee Gees', 'Donna Summer',
+  'Chic', 'Kool & the Gang', 'Sly and the Family Stone', 'The Supremes', 'The Jackson 5',
+
+  'Tupac Shakur', 'The Notorious B.I.G.', 'Dr. Dre', 'Snoop Dogg', 'Jay-Z',
+  'Nas', 'Run-D.M.C.', 'Public Enemy', 'N.W.A', 'Wu-Tang Clan',
+
+  'Johnny Hallyday', 'Serge Gainsbourg', 'Charles Aznavour', 'Edith Piaf', 'Andrea Bocelli',
+  'Julio Iglesias', 'Enrique Iglesias', 'Rammstein', 'Scorpions', 'Modern Talking',
+
+  'Bruce Springsteen', 'Billy Joel', 'Rod Stewart', 'Eric Clapton', 'Jimi Hendrix',
+  'Carlos Santana', 'Paul McCartney', 'John Lennon', 'Freddie Mercury', 'Ozzy Osbourne',
+
+  'Aerosmith', 'Bon Jovi', 'Def Leppard', 'Journey', 'Chicago',
+  'Fleetwood Mac', 'The Police', 'Depeche Mode', 'Simple Minds', 'Duran Duran',
+
+  'Genesis', 'The Cure', 'Oasis', 'Blur', 'Radiohead',
+  'Coldplay', 'Imagine Dragons', 'Maroon 5', 'Linkin Park', 'Green Day',
+
+  'Red Hot Chili Peppers', 'Foo Fighters', 'Arctic Monkeys', 'Muse', 'Daft Punk',
+  'Justice', 'Stromae', 'Mylène Farmer', 'Indochine', 'Téléphone'
+];
     const randomBand = famousBands[Math.floor(Math.random() * famousBands.length)];
     const targetData = await getGroupData(randomBand);
 
     const room = await prisma.room.update({
       where: { code },
-      data: { 
+      data: {
         isStarted: true,
         targetData: JSON.stringify(targetData),
         guesses: '[]',
@@ -102,6 +128,7 @@ app.post('/api/rooms/:code/start', async (req, res) => {
       }
     });
     res.json(room);
+    console.log(`Partie lancée avec la cible: ${randomBand}`);
   } catch (error) {
     console.error("Erreur au lancement:", error);
     res.status(500).json({ error: 'Erreur au lancement de la partie' });
@@ -113,18 +140,18 @@ import { getGroupData } from './index.js';
 app.get('/api/rooms/:code/game', async (req, res) => {
   const { code } = req.params;
   try {
-    const room = await prisma.room.findUnique({ 
+    const room = await prisma.room.findUnique({
       where: { code },
       include: {
         players: { orderBy: { id: 'asc' } }
       }
     });
-    
+
     if (!room) return res.status(404).json({ error: 'Room not found' });
 
     const guesses = JSON.parse(room.guesses || '[]');
     let currentTurnPlayerId = null;
-    
+
     if (room.players.length > 0) {
       const turnIndex = guesses.length % room.players.length;
       currentTurnPlayerId = room.players[turnIndex].id;
@@ -132,7 +159,7 @@ app.get('/api/rooms/:code/game', async (req, res) => {
 
     res.json({
       hasTarget: !!room.targetData,
-      hostId: room.hostId, // Note: now unused
+      hostId: room.hostId,
       guesses: guesses,
       players: room.players,
       currentTurnPlayerId
