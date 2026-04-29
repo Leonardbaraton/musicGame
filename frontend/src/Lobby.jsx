@@ -69,7 +69,7 @@ function Lobby({ room, player, onLeave, onStartGame }) {
         <div className="bg-[#181818] rounded-xl p-5 mb-6">
           <p className="text-[#B3B3B3] text-sm mb-2">Partagez ce code avec vos amis :</p>
           <div className="flex items-center gap-3">
-            <span className="text-3xl font-bold tracking-widest text-[#1DB954]">{room.code}</span>
+            <span className="text-3xl font-bold tracking-widest text-[#1DB954]" aria-label={`Code de la room : ${room.code}`}>{room.code}</span>
           </div>
         </div>
 

@@ -8,11 +8,14 @@ const colorMap = {
 
 function GuessCell({ value, color, dir }) {
   const bg = colorMap[color] || 'bg-[#282828]';
+  const dirLabel = dir === '>' ? 'plus grand' : dir === '<' ? 'plus petit' : null;
   return (
     <td className={`px-3 py-3 text-center text-sm font-medium text-white border-b border-[#3E3E3E] ${bg} transition-colors`}>
       {value}
-      {dir && dir !== '=' && (
-        <span className="ml-1 text-xs opacity-80">{dir === '>' ? '↑' : '↓'}</span>
+      {dirLabel && (
+        <span className="ml-1 text-xs opacity-80" aria-label={dirLabel}>
+          {dir === '>' ? '↑' : '↓'}
+        </span>
       )}
     </td>
   );
@@ -61,6 +64,8 @@ function Gameplay({ room, player, onLeave }) {
   const isMyTurn = gameState.currentTurnPlayerId === player.id;
   const currentTurnPlayer = gameState.players?.find(p => p.id === gameState.currentTurnPlayerId);
   const hasWon = gameState.guesses?.some(g => g.isWin);
+  const winningGuess = gameState.guesses?.find(g => g.isWin);
+  const winnerName = gameState.players?.find(p => p.id === winningGuess?.playerId)?.name;
 
   return (
     <div className="min-h-screen bg-[#121212] text-white">
@@ -99,7 +104,7 @@ function Gameplay({ room, player, onLeave }) {
             <div className="text-center">
               <p className="text-2xl font-bold text-[#1DB954] mb-1">🎉 Bravo !</p>
               <p className="text-[#B3B3B3] text-sm">
-                Le groupe a été trouvé par <span className="text-white font-semibold">{gameState.guesses[gameState.guesses.length - 1]?.name}</span> !
+                Le groupe a été trouvé par <span className="text-white font-semibold">{winnerName || 'un joueur'}</span> !
               </p>
             </div>
           ) : (
