@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+@theme {
+  --color-spotify-green: #1DB954;
+  --color-spotify-green-hover: #1ed760;
+  --color-spotify-black: #121212;
+  --color-spotify-dark: #181818;
+  --color-spotify-card: #282828;
+  --color-spotify-card-hover: #3E3E3E;
+  --color-spotify-text: #FFFFFF;
+  --color-spotify-muted: #B3B3B3;
+  --color-spotify-error: #FF4D4D;
+}
+
+body {
+  background-color: #121212;
+  color: #FFFFFF;
+  font-family: 'Inter', 'Circular', system-ui, -apple-system, sans-serif;
+}
