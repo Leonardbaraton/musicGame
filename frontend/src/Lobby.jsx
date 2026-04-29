@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-function Lobby({ room, player }) {
+function Lobby({ room, player, onLeave }) {
   const [players, setPlayers] = useState([]);
   const [error, setError] = useState('');
 
@@ -24,7 +24,12 @@ function Lobby({ room, player }) {
 
   return (
     <div style={{ padding: '2rem', maxWidth: '600px', margin: '0 auto', fontFamily: 'sans-serif' }}>
-      <h1>Lobby - Room {room.code}</h1>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <h1>Lobby - Room {room.code}</h1>
+        <button onClick={onLeave} style={{ padding: '8px 16px', background: '#ff4444', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
+          Quitter
+        </button>
+      </div>
       <p>Partagez ce code avec vos amis pour les inviter : <strong>{room.code}</strong></p>
 
       {error && <p style={{ color: 'red' }}>{error}</p>}
