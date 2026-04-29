@@ -84,12 +84,26 @@ app.post('/api/rooms/:code/start', async (req, res) => {
   const { code } = req.params;
 
   try {
+    const famousBands = [
+      'Queen', 'The Beatles', 'Daft Punk', 'Pink Floyd', 
+      'Nirvana', 'Coldplay', 'AC/DC', 'The Rolling Stones',
+      'Metallica', 'Led Zeppelin', 'U2', 'Red Hot Chili Peppers'
+    ];
+    const randomBand = famousBands[Math.floor(Math.random() * famousBands.length)];
+    const targetData = await getGroupData(randomBand);
+
     const room = await prisma.room.update({
       where: { code },
-      data: { isStarted: true }
+      data: { 
+        isStarted: true,
+        targetData: JSON.stringify(targetData),
+        guesses: '[]',
+        hostId: null
+      }
     });
     res.json(room);
   } catch (error) {
+    console.error("Erreur au lancement:", error);
     res.status(500).json({ error: 'Erreur au lancement de la partie' });
   }
 });
@@ -99,11 +113,29 @@ import { getGroupData } from './index.js';
 app.get('/api/rooms/:code/game', async (req, res) => {
   const { code } = req.params;
   try {
-    const room = await prisma.room.findUnique({ where: { code } });
+    const room = await prisma.room.findUnique({ 
+      where: { code },
+      include: {
+        players: { orderBy: { id: 'asc' } }
+      }
+    });
+    
+    if (!room) return res.status(404).json({ error: 'Room not found' });
+
+    const guesses = JSON.parse(room.guesses || '[]');
+    let currentTurnPlayerId = null;
+    
+    if (room.players.length > 0) {
+      const turnIndex = guesses.length % room.players.length;
+      currentTurnPlayerId = room.players[turnIndex].id;
+    }
+
     res.json({
       hasTarget: !!room.targetData,
-      hostId: room.hostId,
-      guesses: JSON.parse(room.guesses || '[]'),
+      hostId: room.hostId, // Note: now unused
+      guesses: guesses,
+      players: room.players,
+      currentTurnPlayerId
     });
   } catch (error) {
     res.status(500).json({ error: 'Erreur' });
@@ -136,8 +168,23 @@ app.post('/api/rooms/:code/guess', async (req, res) => {
   const { code } = req.params;
   const { groupName, playerId } = req.body;
   try {
-    const room = await prisma.room.findUnique({ where: { code } });
-    if (!room.targetData) return res.status(400).json({ error: 'Pas de cible définie' });
+    const room = await prisma.room.findUnique({
+      where: { code },
+      include: { players: { orderBy: { id: 'asc' } } }
+    });
+    if (!room || !room.targetData) return res.status(400).json({ error: 'Pas de cible définie' });
+
+    // Vérification du tour
+    const guessesRaw = JSON.parse(room.guesses || '[]');
+    let currentTurnPlayerId = null;
+    if (room.players.length > 0) {
+      const turnIndex = guessesRaw.length % room.players.length;
+      currentTurnPlayerId = room.players[turnIndex].id;
+    }
+
+    if (currentTurnPlayerId !== playerId) {
+      return res.status(403).json({ error: "Ce n'est pas votre tour !" });
+    }
 
     const target = JSON.parse(room.targetData);
     const guess = await getGroupData(groupName);
@@ -176,12 +223,11 @@ app.post('/api/rooms/:code/guess', async (req, res) => {
                (guess.popularity < target.popularity ? '+' : '=')
     };
 
-    const guesses = JSON.parse(room.guesses || '[]');
-    guesses.push(result);
+    guessesRaw.push(result);
 
     await prisma.room.update({
       where: { code },
-      data: { guesses: JSON.stringify(guesses) }
+      data: { guesses: JSON.stringify(guessesRaw) }
     });
 
     res.json({ success: true, isWin });

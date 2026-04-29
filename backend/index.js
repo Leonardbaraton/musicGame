@@ -3,38 +3,53 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+// Configuration globale Axios pour éviter les requêtes qui tournent à l'infini
+axios.defaults.timeout = 8000;
+// MusicBrainz exige un User-Agent personnalisé sous peine de bloquer la connexion
+axios.defaults.headers.common['User-Agent'] = 'MusicGameOniti/1.0 ( leonard@example.com )';
+
 const LASTFM_API_KEY = process.env.LASTFM_API_KEY;
 
 /**
  * 1. MUSICBRAINZ → infos officielles
  */
 async function getMusicBrainzArtist(name) {
-  const res = await axios.get(
-    `https://musicbrainz.org/ws/2/artist/?query=${encodeURIComponent(name)}&fmt=json`
-  );
+  try {
+    const res = await axios.get(
+      `https://musicbrainz.org/ws/2/artist/?query=${encodeURIComponent(name)}&fmt=json`
+    );
 
-  const artist = res.data.artists?.[0];
-  if (!artist) return null;
+    const artist = res.data.artists?.[0];
+    if (!artist) return null;
 
-  // On refait un appel pour récupérer les relations (membres du groupe)
-  const detailRes = await axios.get(
-    `https://musicbrainz.org/ws/2/artist/${artist.id}?inc=artist-rels&fmt=json`
-  );
+    // On refait un appel pour récupérer les relations (membres du groupe)
+    const detailRes = await axios.get(
+      `https://musicbrainz.org/ws/2/artist/${artist.id}?inc=artist-rels&fmt=json`
+    );
 
-  return detailRes.data;
+    return detailRes.data;
+  } catch (err) {
+    console.error("MusicBrainz Error:", err.message);
+    return null;
+  }
 }
 
 /**
  * 2. LAST.FM → genres + popularité
  */
 async function getLastFmArtist(name) {
-  const res = await axios.get(
-    `http://ws.audioscrobbler.com/2.0/?method=artist.getinfo&artist=${encodeURIComponent(
-      name
-    )}&api_key=${LASTFM_API_KEY}&format=json`
-  );
+  try {
+    const res = await axios.get(
+      `http://ws.audioscrobbler.com/2.0/?method=artist.getinfo&artist=${encodeURIComponent(
+        name
+      )}&api_key=${LASTFM_API_KEY}&format=json`
+    );
 
-  return res.data.artist;
+    return res.data.artist;
+  } catch (err) {
+    console.error("LastFM Error:", err.message);
+    return null;
+  }
 }
 
 /**
@@ -45,6 +60,13 @@ export async function getGroupData(name) {
     getMusicBrainzArtist(name),
     getLastFmArtist(name),
   ]);
+
+  let genres = [];
+  if (lf?.tags?.tag) {
+    genres = Array.isArray(lf.tags.tag) 
+      ? lf.tags.tag.map((t) => t.name) 
+      : (lf.tags.tag.name ? [lf.tags.tag.name] : []);
+  }
 
   const result = {
     name: mb?.name || lf?.name || name,
@@ -57,8 +79,7 @@ export async function getGroupData(name) {
       ? (mb.relations?.filter((r) => r.type === "member of band").length || 0)
       : (mb?.type === "Person" ? 1 : null),
 
-    genres:
-      lf?.tags?.tag?.map((t) => t.name) || [],
+    genres: genres,
 
     popularity: lf?.stats?.listeners
       ? Number(lf.stats.listeners)
