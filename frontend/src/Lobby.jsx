@@ -9,9 +9,9 @@ function Lobby({ room, player, onLeave, onStartGame }) {
       const res = await fetch(`http://localhost:3000/api/rooms/${room.code}/players`);
       if (!res.ok) throw new Error('Erreur réseaux');
       const data = await res.json();
-      
+
       setPlayers(data.players || []);
-      
+
       if (data.isStarted) {
         onStartGame();
       }
@@ -21,6 +21,10 @@ function Lobby({ room, player, onLeave, onStartGame }) {
   };
 
   const handleStartGame = async () => {
+    if (players.length < 2) {
+      setError('Il faut au moins 2 joueurs pour commencer');
+      return;
+    }
     try {
       const res = await fetch(`http://localhost:3000/api/rooms/${room.code}/start`, { method: 'POST' });
       if (!res.ok) throw new Error('Erreur au lancement');
@@ -49,12 +53,18 @@ function Lobby({ room, player, onLeave, onStartGame }) {
 
       {error && <p style={{ color: 'red' }}>{error}</p>}
 
-      <div style={{ padding: '1rem', marginTop: '1rem', background: '#e0ffe0', borderRadius: '8px', textAlign: 'center' }}>
-        <p>Tout le monde est là ?</p>
-        <button onClick={handleStartGame} style={{ padding: '10px 20px', background: '#4CAF50', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '1.1rem' }}>
-          Lancer la partie !
-        </button>
-      </div>
+      {players.length > 0 && players[0].id === player.id ? (
+        <div style={{ padding: '1rem', marginTop: '1rem', background: '#e0ffe0', borderRadius: '8px', textAlign: 'center' }}>
+          <p>Tout le monde est là ?</p>
+          <button onClick={handleStartGame} style={{ padding: '10px 20px', background: '#4CAF50', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '1.1rem' }}>
+            Lancer la partie !
+          </button>
+        </div>
+      ) : (
+        <div style={{ padding: '1rem', marginTop: '1rem', background: '#f0f0f0', borderRadius: '8px', textAlign: 'center' }}>
+          <p>En attente de l'hôte pour lancer la partie...</p>
+        </div>
+      )}
 
       <h2>Joueurs dans la salle ({players.length}) :</h2>
       <ul style={{ listStyle: 'none', padding: 0 }}>

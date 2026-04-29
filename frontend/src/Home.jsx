@@ -3,7 +3,7 @@ import { useState } from 'react';
 function Home({ onJoin }) {
   const [step, setStep] = useState('select'); // 'select' ou 'profile'
   const [pendingAction, setPendingAction] = useState(null); // 'create' ou 'join'
-  
+
   const [name, setName] = useState('');
   const [photoUrl, setPhotoUrl] = useState('');
   const [joinCode, setJoinCode] = useState('');
@@ -69,17 +69,17 @@ function Home({ onJoin }) {
         <>
           <div style={{ padding: '1rem', border: '1px solid #ccc', borderRadius: '8px', marginBottom: '1rem' }}>
             <button onClick={handleSelectCreate} style={{ padding: '10px 20px', width: '100%', cursor: 'pointer' }}>
-              Créer une nouvelle room
+              Créer une nouvelle partie
             </button>
           </div>
 
           <div style={{ textAlign: 'center' }}>- OU -</div>
 
           <div style={{ padding: '1rem', border: '1px solid #ccc', borderRadius: '8px', marginTop: '1rem' }}>
-            <h3>Rejoindre une Room</h3>
+            <h3>Rejoindre une Partie</h3>
             <input
               type="text"
-              placeholder="Code de la room (ex: A1B2C3)"
+              placeholder="Code de la partie (ex: A1B2C3)"
               value={joinCode}
               onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
               style={{ display: 'block', width: '100%', marginBottom: '10px', padding: '8px' }}
