@@ -68,7 +68,7 @@ app.get('/api/rooms/:code/players', async (req, res) => {
         players: true,
       },
     });
-    
+
     if (!room) return res.status(404).json({ error: 'Room introuvable' });
 
     res.json({
@@ -91,6 +91,103 @@ app.post('/api/rooms/:code/start', async (req, res) => {
     res.json(room);
   } catch (error) {
     res.status(500).json({ error: 'Erreur au lancement de la partie' });
+  }
+});
+
+import { getGroupData } from './index.js';
+
+app.get('/api/rooms/:code/game', async (req, res) => {
+  const { code } = req.params;
+  try {
+    const room = await prisma.room.findUnique({ where: { code } });
+    res.json({
+      hasTarget: !!room.targetData,
+      hostId: room.hostId,
+      guesses: JSON.parse(room.guesses || '[]'),
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Erreur' });
+  }
+});
+
+app.post('/api/rooms/:code/set-target', async (req, res) => {
+  const { code } = req.params;
+  const { groupName, playerId } = req.body;
+  try {
+    const targetData = await getGroupData(groupName);
+    if (!targetData.name) return res.status(404).json({ error: 'Groupe introuvable' });
+
+    const room = await prisma.room.update({
+      where: { code },
+      data: {
+        hostId: playerId,
+        targetData: JSON.stringify(targetData),
+        guesses: '[]',
+      }
+    });
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Erreur dans /set-target:", error);
+    res.status(500).json({ error: 'Erreur lors de la configuration' });
+  }
+});
+
+app.post('/api/rooms/:code/guess', async (req, res) => {
+  const { code } = req.params;
+  const { groupName, playerId } = req.body;
+  try {
+    const room = await prisma.room.findUnique({ where: { code } });
+    if (!room.targetData) return res.status(400).json({ error: 'Pas de cible définie' });
+
+    const target = JSON.parse(room.targetData);
+    const guess = await getGroupData(groupName);
+    if (!guess.name) return res.status(404).json({ error: 'Groupe introuvable' });
+
+    // Comparaison
+    let isWin = guess.name.toLowerCase() === target.name.toLowerCase();
+
+    const result = {
+      playerId,
+      name: guess.name,
+      isWin,
+      nameColor: isWin ? 'green' : 'red',
+      country: guess.country || 'Inconnu',
+      countryColor: guess.country === target.country ? 'green' : 'red',
+      
+      year: guess.creation_year || 'Inconnu',
+      yearColor: guess.creation_year == target.creation_year ? 'green' :
+                 (Math.abs(guess.creation_year - target.creation_year) <= 5 ? 'yellow' : 'red'),
+      yearDir: guess.creation_year > target.creation_year ? '-' :
+               (guess.creation_year < target.creation_year ? '+' : '='),
+               
+      members: guess.member_count !== null ? guess.member_count : 'Inconnu',
+      membersColor: guess.member_count === target.member_count ? 'green' : 'red',
+      membersDir: guess.member_count > target.member_count ? '-' :
+                  (guess.member_count < target.member_count ? '+' : '='),
+                  
+      genres: guess.genres.join(', ') || 'Inconnu',
+      genresColor: guess.genres.length && target.genres.length && guess.genres.some(g => target.genres.includes(g))
+                   ? (guess.genres.every(g => target.genres.includes(g)) ? 'green' : 'yellow') : 'red',
+                   
+      popularity: guess.popularity || 'Inconnu',
+      popColor: guess.popularity == target.popularity ? 'green' :
+                (Math.abs(guess.popularity - target.popularity) <= 10 ? 'yellow' : 'red'),
+      popDir: guess.popularity > target.popularity ? '-' :
+               (guess.popularity < target.popularity ? '+' : '=')
+    };
+
+    const guesses = JSON.parse(room.guesses || '[]');
+    guesses.push(result);
+
+    await prisma.room.update({
+      where: { code },
+      data: { guesses: JSON.stringify(guesses) }
+    });
+
+    res.json({ success: true, isWin });
+  } catch (error) {
+    console.error("Erreur dans /guess:", error);
+    res.status(500).json({ error: 'Erreur pendant le coup' });
   }
 });
 

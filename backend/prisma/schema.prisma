@@ -8,11 +8,14 @@ datasource db {
 }
 
 model Room {
-  id        String   @id @default(uuid())
-  code      String   @unique
-  createdAt DateTime @default(now())
-  isStarted Boolean  @default(false)
-  players   Player[]
+  id          String   @id @default(uuid())
+  code        String   @unique
+  createdAt   DateTime @default(now())
+  isStarted   Boolean  @default(false)
+  targetData  String?
+  hostId      String?
+  guesses     String?  @default("[]")
+  players     Player[]
 }
 
 model Player {

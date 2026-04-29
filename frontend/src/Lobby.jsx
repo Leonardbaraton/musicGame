@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-function Lobby({ room, player, onLeave }) {
+function Lobby({ room, player, onLeave, onStartGame }) {
   const [players, setPlayers] = useState([]);
   const [error, setError] = useState('');
 
@@ -9,7 +9,22 @@ function Lobby({ room, player, onLeave }) {
       const res = await fetch(`http://localhost:3000/api/rooms/${room.code}/players`);
       if (!res.ok) throw new Error('Erreur réseaux');
       const data = await res.json();
-      setPlayers(data);
+      
+      setPlayers(data.players || []);
+      
+      if (data.isStarted) {
+        onStartGame();
+      }
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const handleStartGame = async () => {
+    try {
+      const res = await fetch(`http://localhost:3000/api/rooms/${room.code}/start`, { method: 'POST' });
+      if (!res.ok) throw new Error('Erreur au lancement');
+      onStartGame(); // Notify parent
     } catch (err) {
       setError(err.message);
     }
@@ -34,6 +49,13 @@ function Lobby({ room, player, onLeave }) {
 
       {error && <p style={{ color: 'red' }}>{error}</p>}
 
+      <div style={{ padding: '1rem', marginTop: '1rem', background: '#e0ffe0', borderRadius: '8px', textAlign: 'center' }}>
+        <p>Tout le monde est là ?</p>
+        <button onClick={handleStartGame} style={{ padding: '10px 20px', background: '#4CAF50', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '1.1rem' }}>
+          Lancer la partie !
+        </button>
+      </div>
+
       <h2>Joueurs dans la salle ({players.length}) :</h2>
       <ul style={{ listStyle: 'none', padding: 0 }}>
         {players.map((p) => (
@@ -46,7 +68,7 @@ function Lobby({ room, player, onLeave }) {
                </div>
              )}
              <div>
-               <strong>{p.name}</strong> 
+               <strong>{p.name}</strong>
                {p.id === player.id && ' (Vous)'}
              </div>
           </li>

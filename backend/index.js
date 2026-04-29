@@ -72,4 +72,4 @@ export async function getGroupData(name) {
 /**
  * TEST
  */
-getGroupData("The Weeknd");
+
