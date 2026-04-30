@@ -28,7 +28,7 @@ function Home({ onJoin }) {
 
     if (pendingAction === 'create') {
       try {
-        const res = await fetch('http://localhost:3000/api/rooms', {
+        const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/rooms`, {
           method: 'POST',
         });
         const room = await res.json();
@@ -43,7 +43,7 @@ function Home({ onJoin }) {
 
   const joinRoom = async (code) => {
     try {
-      const res = await fetch(`http://localhost:3000/api/rooms/${code}/join`, {
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/rooms/${code}/join`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, photoUrl }),
@@ -127,13 +127,22 @@ function Home({ onJoin }) {
                 onChange={(e) => setName(e.target.value)}
                 className="w-full px-4 py-3 bg-[#3E3E3E] text-white placeholder-[#B3B3B3] rounded-lg border border-transparent focus:outline-none focus:border-[#1DB954] transition-colors text-sm"
               />
-              <input
-                type="url"
-                placeholder="Lien vers votre photo (optionnel)"
-                value={photoUrl}
-                onChange={(e) => setPhotoUrl(e.target.value)}
-                className="w-full px-4 py-3 bg-[#3E3E3E] text-white placeholder-[#B3B3B3] rounded-lg border border-transparent focus:outline-none focus:border-[#1DB954] transition-colors text-sm"
-              />
+              <label className="w-full px-4 py-4 bg-[#3E3E3E]/50 text-[#B3B3B3] hover:text-white rounded-lg border-2 border-dashed border-[#888] hover:border-white transition-colors text-sm cursor-pointer flex items-center justify-center">
+                {photoUrl ? "Photo sélectionnée" : "Prendre ou choisir une photo (optionnel)"}
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                      const reader = new FileReader();
+                      reader.onloadend = () => setPhotoUrl(reader.result);
+                      reader.readAsDataURL(file);
+                    }
+                  }}
+                  className="hidden"
+                />
+              </label>
               <button
                 type="submit"
                 className="w-full py-3 px-6 bg-[#1DB954] hover:bg-[#1ed760] text-black font-bold rounded-full transition-colors duration-200 text-base cursor-pointer"

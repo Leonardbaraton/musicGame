@@ -6,7 +6,7 @@ function Lobby({ room, player, onLeave, onStartGame }) {
 
   const fetchPlayers = async () => {
     try {
-      const res = await fetch(`http://localhost:3000/api/rooms/${room.code}/players`);
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/rooms/${room.code}/players`);
       if (!res.ok) throw new Error('Erreur réseaux');
       const data = await res.json();
 
@@ -26,7 +26,7 @@ function Lobby({ room, player, onLeave, onStartGame }) {
       return;
     }
     try {
-      const res = await fetch(`http://localhost:3000/api/rooms/${room.code}/start`, { method: 'POST' });
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/rooms/${room.code}/start`, { method: 'POST' });
       if (!res.ok) throw new Error('Erreur au lancement');
       onStartGame(); // Notify parent
     } catch (err) {

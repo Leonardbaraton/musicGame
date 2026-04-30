@@ -30,7 +30,7 @@ function Gameplay({ room, player, onLeave }) {
 
   const fetchGameState = async () => {
     try {
-      const res = await fetch(`http://localhost:3000/api/rooms/${room.code}/game`);
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/rooms/${room.code}/game`);
       const data = await res.json();
       setGameState(data);
     } catch (err) {
@@ -49,7 +49,7 @@ function Gameplay({ room, player, onLeave }) {
     setLoading(true);
     setError('');
     try {
-      const res = await fetch(`http://localhost:3000/api/rooms/${room.code}/guess`, {
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/rooms/${room.code}/guess`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ groupName: guessInput, playerId: player.id })
       });
@@ -103,7 +103,7 @@ function Gameplay({ room, player, onLeave }) {
         <div className={`rounded-xl p-6 border ${hasWon ? 'bg-[#1DB954]/10 border-[#1DB954]/40' : isMyTurn ? 'bg-[#1DB954]/10 border-[#1DB954]/40' : 'bg-[#181818] border-[#282828]'}`}>
           {hasWon ? (
             <div className="text-center">
-              <p className="text-2xl font-bold text-[#1DB954] mb-1">🎉 Bravo !</p>
+              <p className="text-2xl font-bold text-[#1DB954] mb-1">Bravo !</p>
               <p className="text-[#B3B3B3] text-sm">
                 Le groupe a été trouvé par <span className="text-white font-semibold">{winnerName || 'un joueur'}</span> !
               </p>
