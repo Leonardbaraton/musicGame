@@ -11,10 +11,10 @@ function GuessCell({ value, color, dir }) {
   const dirLabel = dir === '+' ? '↑' : dir === '-' ? '↓' : null;
 
   return (
-    <td className={`px-3 py-3 text-center text-sm font-medium text-white border-b border-[#3E3E3E] ${bg} transition-colors`}>
+    <td className={`px-2 py-2 sm:px-3 sm:py-3 text-center text-xs sm:text-sm font-medium text-white border-b border-[#3E3E3E] ${bg} transition-colors`}>
       {value}
       {dirLabel && (
-        <span className="ml-1 text-base font-bold opacity-90" aria-label={dirLabel === '↑' ? 'plus grand' : 'plus petit'}>
+        <span className="ml-1 text-sm sm:text-base font-bold opacity-90" aria-label={dirLabel === '↑' ? 'plus grand' : 'plus petit'}>
           {dirLabel}
         </span>
       )}
@@ -71,28 +71,30 @@ function Gameplay({ room, player, onLeave }) {
   return (
     <div className="min-h-screen bg-[#121212] text-white">
       {/* Top bar */}
-      <div className="border-b border-[#282828] px-6 py-4">
-        <div className="max-w-5xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <svg viewBox="0 0 24 24" className="w-6 h-6 fill-[#1DB954]" xmlns="http://www.w3.org/2000/svg">
+      <div className="border-b border-[#282828] px-4 py-3 sm:px-6 sm:py-4">
+        <div className="max-w-5xl mx-auto flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 min-w-0">
+            <svg viewBox="0 0 24 24" className="w-5 h-5 sm:w-6 sm:h-6 fill-[#1DB954] flex-shrink-0" xmlns="http://www.w3.org/2000/svg">
               <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
             </svg>
-            <div>
+            <div className="min-w-0">
               <span className="text-white font-bold text-sm">Music Game</span>
-              <span className="mx-2 text-[#3E3E3E]">•</span>
-              <span className="text-[#B3B3B3] text-sm">Room <span className="text-[#1DB954] font-semibold">{room.code}</span></span>
+              <span className="mx-1.5 text-[#3E3E3E] hidden sm:inline" aria-hidden="true">•</span>
+              <span className="text-[#B3B3B3] text-xs sm:text-sm block sm:inline">
+                Room <span className="text-[#1DB954] font-semibold">{room.code}</span>
+              </span>
             </div>
           </div>
           <button
             onClick={onLeave}
-            className="px-4 py-2 text-sm text-[#B3B3B3] hover:text-white border border-[#3E3E3E] hover:border-white rounded-full transition-colors duration-200 cursor-pointer"
+            className="flex-shrink-0 px-3 py-2 sm:px-4 text-xs sm:text-sm text-[#B3B3B3] hover:text-white border border-[#3E3E3E] hover:border-white rounded-full transition-colors duration-200 cursor-pointer"
           >
             Quitter
           </button>
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto px-6 py-8 space-y-6">
+      <div className="max-w-5xl mx-auto px-3 py-5 sm:px-6 sm:py-8 space-y-4 sm:space-y-6">
         {error && (
           <div className="px-4 py-3 bg-[#FF4D4D]/10 border border-[#FF4D4D]/40 rounded-lg text-[#FF4D4D] text-sm">
             {error}
@@ -100,35 +102,36 @@ function Gameplay({ room, player, onLeave }) {
         )}
 
         {/* Turn / Win status */}
-        <div className={`rounded-xl p-6 border ${hasWon ? 'bg-[#1DB954]/10 border-[#1DB954]/40' : isMyTurn ? 'bg-[#1DB954]/10 border-[#1DB954]/40' : 'bg-[#181818] border-[#282828]'}`}>
+        <div className={`rounded-xl p-4 sm:p-6 border ${hasWon ? 'bg-[#1DB954]/10 border-[#1DB954]/40' : isMyTurn ? 'bg-[#1DB954]/10 border-[#1DB954]/40' : 'bg-[#181818] border-[#282828]'}`}>
           {hasWon ? (
             <div className="text-center">
-              <p className="text-2xl font-bold text-[#1DB954] mb-1">Bravo !</p>
+              <p className="text-xl sm:text-2xl font-bold text-[#1DB954] mb-1">Bravo !</p>
               <p className="text-[#B3B3B3] text-sm">
                 Le groupe a été trouvé par <span className="text-white font-semibold">{winnerName || 'un joueur'}</span> !
               </p>
             </div>
           ) : (
             <>
-              <p className="text-[#B3B3B3] text-xs font-semibold uppercase tracking-widest mb-3">
+              <p className="text-[#B3B3B3] text-xs font-semibold uppercase tracking-widest mb-2 sm:mb-3">
                 {isMyTurn ? '🎵 À votre tour' : '⏳ En attente'}
               </p>
-              <h3 className="text-white font-bold text-lg mb-4">
+              <h3 className="text-white font-bold text-base sm:text-lg mb-3 sm:mb-4">
                 {isMyTurn ? 'Devinez le groupe !' : `Tour de ${currentTurnPlayer?.name || '...'}`}
               </h3>
-              <form onSubmit={handleGuess} className="flex gap-3">
+              <form onSubmit={handleGuess} className="flex flex-col gap-2 sm:flex-row sm:gap-3">
                 <input
                   type="text"
                   value={guessInput}
                   onChange={e => setGuessInput(e.target.value)}
                   placeholder="Entrez le nom d'un groupe..."
                   disabled={!isMyTurn || hasWon}
-                  className="flex-1 px-4 py-2.5 bg-[#3E3E3E] text-white placeholder-[#B3B3B3] rounded-lg border border-transparent focus:outline-none focus:border-[#1DB954] disabled:opacity-40 disabled:cursor-not-allowed transition-colors text-sm"
+                  aria-label="Nom du groupe"
+                  className="flex-1 px-4 py-3 bg-[#3E3E3E] text-white placeholder-[#B3B3B3] rounded-lg border border-transparent focus:outline-none focus:border-[#1DB954] disabled:opacity-40 disabled:cursor-not-allowed transition-colors text-sm"
                 />
                 <button
                   type="submit"
                   disabled={loading || !isMyTurn || hasWon}
-                  className="px-6 py-2.5 bg-[#1DB954] hover:bg-[#1ed760] disabled:bg-[#3E3E3E] disabled:text-[#B3B3B3] disabled:cursor-not-allowed text-black font-bold rounded-lg transition-colors duration-200 text-sm cursor-pointer"
+                  className="w-full sm:w-auto px-6 py-3 bg-[#1DB954] hover:bg-[#1ed760] disabled:bg-[#3E3E3E] disabled:text-[#B3B3B3] disabled:cursor-not-allowed text-black font-bold rounded-lg transition-colors duration-200 text-sm cursor-pointer"
                 >
                   {loading ? '...' : 'Deviner'}
                 </button>
@@ -139,9 +142,9 @@ function Gameplay({ room, player, onLeave }) {
 
         {/* Guesses table */}
         <div className="bg-[#181818] rounded-xl overflow-hidden">
-          <div className="px-5 py-4 border-b border-[#282828]">
-            <h2 className="text-white font-bold text-base">
-              Tentatives <span className="text-[#B3B3B3] font-normal text-sm">({gameState.guesses?.length || 0})</span>
+          <div className="px-4 py-3 sm:px-5 sm:py-4 border-b border-[#282828]">
+            <h2 className="text-white font-bold text-sm sm:text-base">
+              Tentatives <span className="text-[#B3B3B3] font-normal text-xs sm:text-sm">({gameState.guesses?.length || 0})</span>
             </h2>
           </div>
           <div className="overflow-x-auto">
@@ -149,7 +152,7 @@ function Gameplay({ room, player, onLeave }) {
               <thead>
                 <tr className="bg-[#121212]">
                   {['Joueur', 'Groupe', 'Pays', 'Année', 'Membres', 'Genres', 'Popularité'].map(h => (
-                    <th key={h} className="px-3 py-3 text-left text-[#B3B3B3] font-semibold text-xs uppercase tracking-wider whitespace-nowrap border-b border-[#282828]">
+                    <th key={h} className="px-2 py-2 sm:px-3 sm:py-3 text-left text-[#B3B3B3] font-semibold text-xs uppercase tracking-wider whitespace-nowrap border-b border-[#282828]">
                       {h}
                     </th>
                   ))}
@@ -158,7 +161,7 @@ function Gameplay({ room, player, onLeave }) {
               <tbody>
                 {!gameState.guesses?.length && (
                   <tr>
-                    <td colSpan="7" className="px-3 py-10 text-center text-[#B3B3B3] text-sm">
+                    <td colSpan="7" className="px-3 py-8 sm:py-10 text-center text-[#B3B3B3] text-sm">
                       Aucune tentative pour le moment. Soyez le premier !
                     </td>
                   </tr>
@@ -167,7 +170,7 @@ function Gameplay({ room, player, onLeave }) {
                   const playerName = gameState.players?.find(p => p.id === g.playerId)?.name || 'Inconnu';
                   return (
                     <tr key={i} className="hover:bg-[#282828]/50 transition-colors">
-                      <td className="px-3 py-3 text-white font-semibold text-sm border-b border-[#3E3E3E] whitespace-nowrap">
+                      <td className="px-2 py-2 sm:px-3 sm:py-3 text-white font-semibold text-xs sm:text-sm border-b border-[#3E3E3E] whitespace-nowrap">
                         {playerName}
                       </td>
                       <GuessCell value={g.name} color={g.nameColor} />
@@ -185,7 +188,7 @@ function Gameplay({ room, player, onLeave }) {
         </div>
 
         {/* Legend */}
-        <div className="flex flex-wrap gap-4 text-xs text-[#B3B3B3]">
+        <div className="flex flex-wrap gap-3 sm:gap-4 text-xs text-[#B3B3B3]">
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded bg-[#1DB954]" />
             <span>Correct</span>
@@ -198,8 +201,8 @@ function Gameplay({ room, player, onLeave }) {
             <div className="w-3 h-3 rounded bg-[#E22134]" />
             <span>Incorrect</span>
           </div>
-          <div className="flex items-center gap-2 ml-2 text-sm font-medium">
-            <span>↑ = chercher plus haut · ↓ = chercher plus bas</span>
+          <div className="flex items-center gap-2 sm:ml-2 font-medium">
+            <span>↑ = plus haut · ↓ = plus bas</span>
           </div>
         </div>
       </div>
