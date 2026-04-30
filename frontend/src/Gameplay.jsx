@@ -147,7 +147,48 @@ function Gameplay({ room, player, onLeave }) {
               Tentatives <span className="text-[#B3B3B3] font-normal text-xs sm:text-sm">({gameState.guesses?.length || 0})</span>
             </h2>
           </div>
-          <div className="overflow-x-auto">
+          {/* Mobile: stacked cards */}
+          <div className="sm:hidden px-3 py-3">
+            {!gameState.guesses?.length ? (
+              <div className="px-3 py-6 text-center text-[#B3B3B3] text-sm">Aucune tentative pour le moment. Soyez le premier !</div>
+            ) : (
+              <div className="space-y-3">
+                {gameState.guesses.map((g, i) => {
+                  const playerName = gameState.players?.find(p => p.id === g.playerId)?.name || 'Inconnu';
+                  return (
+                    <div key={i} className="bg-[#121212] border border-[#282828] rounded-lg p-3">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-8 h-8 rounded-full bg-[#3E3E3E] flex items-center justify-center text-sm font-semibold">{playerName.charAt(0).toUpperCase()}</div>
+                          <div className="truncate">
+                            <div className="text-sm font-semibold text-white truncate">{playerName}</div>
+                            <div className="text-xs text-[#B3B3B3] truncate">{g.name}</div>
+                          </div>
+                        </div>
+                        <div className="text-xs text-[#B3B3B3]">{i + 1}</div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2 text-xs">
+                        <div className="col-span-1">
+                          <div className={`inline-block px-2 py-1 rounded text-white text-xs ${colorMap[g.nameColor] || 'bg-[#282828]'}`}>{g.name}</div>
+                        </div>
+                        <div className="col-span-1 text-right text-[#B3B3B3]">{g.country}</div>
+
+                        <div className="col-span-1 text-[#B3B3B3]">Année: <span className={`px-1 rounded ${colorMap[g.yearColor] || 'bg-[#282828]'} text-white`}>{g.year}{g.yearDir ? ` ${g.yearDir === '+' ? '↑' : '↓'}` : ''}</span></div>
+                        <div className="col-span-1 text-right text-[#B3B3B3]">Membres: <span className={`px-1 rounded ${colorMap[g.membersColor] || 'bg-[#282828]'} text-white`}>{g.members}{g.membersDir ? ` ${g.membersDir === '+' ? '↑' : '↓'}` : ''}</span></div>
+
+                        <div className="col-span-2 text-[#B3B3B3] truncate">Genres: <span className={`px-1 rounded ${colorMap[g.genresColor] || 'bg-[#282828]'} text-white`}>{g.genres}</span></div>
+                        <div className="col-span-2 text-right text-[#B3B3B3]">Popularité: <span className={`px-1 rounded ${colorMap[g.popColor] || 'bg-[#282828]'} text-white`}>{g.popularity}{g.popDir ? ` ${g.popDir === '+' ? '↑' : '↓'}` : ''}</span></div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Desktop / tablet: original table (hidden on mobile) */}
+          <div className="hidden sm:block overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-[#121212]">
